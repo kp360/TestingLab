@@ -1,9 +1,13 @@
 package knaph.uw.tacoma.edu.testinglab.authenticate;
 
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -16,18 +20,65 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import knaph.uw.tacoma.edu.testinglab.R;
+import knaph.uw.tacoma.edu.testinglab.util.SharedPreferenceEntry;
+import knaph.uw.tacoma.edu.testinglab.util.SharedPreferencesHelper;
 
 public class SignInActivity extends AppCompatActivity implements RegisterFragment.OnRegisterListener {
+
+    SharedPreferencesHelper mSharedPreferencesHelper;
+    Account mAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, new RegisterFragment() )
-                .commit();
+        // Instantiate a SharedPreferencesHelper.
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        mSharedPreferencesHelper = new SharedPreferencesHelper(
+                sharedPreferences);
+        SharedPreferenceEntry entry = mSharedPreferencesHelper.getLoginInfo();
+
+        if (entry.isLoggedIn()){
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, new LoginFragment())
+                    .commit();
+        } else {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, new RegisterFragment())
+                    .commit();
+        }
+
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_signin, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        if (id == R.id.action_logout) {
+            SharedPreferenceEntry entry = new SharedPreferenceEntry(false,"");
+            mSharedPreferencesHelper.savePersonalInfo(entry);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new RegisterFragment())
+                    .commit();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     @Override
     public void register(String url) {
@@ -35,12 +86,6 @@ public class SignInActivity extends AppCompatActivity implements RegisterFragmen
         task.execute(new String[]{url.toString()});
     }
     private class RegisterAsyncTask extends AsyncTask<String, Void, String> {
-
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
 
         @Override
         protected String doInBackground(String... urls) {
@@ -80,12 +125,19 @@ public class SignInActivity extends AppCompatActivity implements RegisterFragmen
                             , "User successfully registered!"
                             , Toast.LENGTH_LONG)
                             .show();
+                    SharedPreferenceEntry entry = new SharedPreferenceEntry(
+                            true, mAccount.getAccount_username());
+                    mSharedPreferencesHelper.savePersonalInfo(entry);
+
 
                 } else {
                     Toast.makeText(getApplicationContext(), "Failed to register: "
                                     + jsonObject.get("error")
                             , Toast.LENGTH_LONG)
                             .show();
+                    SharedPreferenceEntry entry = new SharedPreferenceEntry(false,"");
+                    mSharedPreferencesHelper.savePersonalInfo(entry);
+
                 }
             } catch (JSONException e) {
                 Toast.makeText(getApplicationContext(), "Something wrong with the data" +
