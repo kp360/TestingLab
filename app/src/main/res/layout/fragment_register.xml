@@ -18,7 +18,7 @@
         android:inputType="textPassword"
         android:hint="Enter your userid"/>
     <Button
-        android:id="@+id/login_button"
+        android:id="@+id/register_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Register"

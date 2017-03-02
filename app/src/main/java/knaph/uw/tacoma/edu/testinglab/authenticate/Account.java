@@ -93,7 +93,7 @@ public class Account {
 
     public void setAccount_password(String account_password) {
         try {
-            if (isValidEmail(account_password)) {
+            if (isValidPassword(account_password)) {
                 this.account_password = account_password;
             } else {
                 throw new IllegalArgumentException();
