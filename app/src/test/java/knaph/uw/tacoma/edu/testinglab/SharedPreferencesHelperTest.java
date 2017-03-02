@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import knaph.uw.tacoma.edu.testinglab.util.SharedPreferenceEntry;
-import knaph.uw.tacoma.edu.testinglab.util.SharedPreferencesHelper
+import knaph.uw.tacoma.edu.testinglab.util.SharedPreferencesHelper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
